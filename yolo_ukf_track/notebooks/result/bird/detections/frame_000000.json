@@ -1,0 +1,19 @@
+[
+  {
+    "frame_id": 1,
+    "filename": "/home/xilinx/jupyter_notebooks/src/result/bird/frames/frame_000000.jpg",
+    "objects": [
+      {
+        "class_id": 14,
+        "name": "bird",
+        "relative_coordinates": {
+          "center_x": 0.632194,
+          "center_y": 0.757005,
+          "width": 0.168245,
+          "height": 0.304863
+        },
+        "confidence": 0.72277
+      }
+    ]
+  }
+]

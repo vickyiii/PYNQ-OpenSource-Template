@@ -1,0 +1,19 @@
+[
+  {
+    "frame_id": 1,
+    "filename": "/home/xilinx/jupyter_notebooks/src/result/vtest/frames/frame_000005.jpg",
+    "objects": [
+      {
+        "class_id": 2,
+        "name": "car",
+        "relative_coordinates": {
+          "center_x": 0.367078,
+          "center_y": 0.552586,
+          "width": 0.245887,
+          "height": 0.083895
+        },
+        "confidence": 0.976895
+      }
+    ]
+  }
+]

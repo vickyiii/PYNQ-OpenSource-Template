@@ -1,0 +1,19 @@
+[
+  {
+    "frame_id": 1,
+    "filename": "/home/xilinx/jupyter_notebooks/src/result/peoplerun/frames/frame_000035.jpg",
+    "objects": [
+      {
+        "class_id": 0,
+        "name": "person",
+        "relative_coordinates": {
+          "center_x": 0.87791,
+          "center_y": 0.864623,
+          "width": 0.181144,
+          "height": 0.201816
+        },
+        "confidence": 0.652391
+      }
+    ]
+  }
+]
