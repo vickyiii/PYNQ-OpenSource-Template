@@ -1,12 +1,14 @@
-# 面向平方根无迹卡尔曼滤波器的硬件加速实现：集成Cholesky算子及其在PYNQ-Z2平台的系统设计
+# 面向平方根无迹卡尔曼滤波器的硬件加速实现：集成 Cholesky 算子及其在 PYNQ‑Z2 平台的系统设计
 
 ## Overview
-本项目于2025年全国大学生嵌入式芯片与系统设计竞赛——AMD命题式赛道获得全国一等奖。
-非常适合PYNQ的基础入门学习，代码量适中，结构清晰易调整
-本项目基于 Xilinx HLS 和 Vivado，在 Zynq PYNQ-Z2 平台上实现平方根无迹卡尔曼滤波器（SR-UKF）的硬件加速。核心包括：
+
+本项目于 2025 年全国大学生嵌入式芯片与系统设计竞赛——AMD 命题式赛道获得全国一等奖，非常适合作为 PYNQ 的基础入门学习示例，代码量适中、结构清晰且便于修改。
+
+本项目基于 Vitis HLS 和 Vivado 2024.2 在 PYNQ‑Z2 平台上实现平方根无迹卡尔曼滤波器（SR‑UKF）的硬件加速，核心特点包括：
+
 - 将 UKF 的时间更新和量测更新流程以硬件友好的方式重构
 - 集成基于 Cholesky 分解的平方根形式协方差更新算子
-- 通过 AXI4-Lite 接口将加速 IP 集成到 PS-PL 系统中，并在 PYNQ 上完成端到端系统设计与验证
+- 通过 AXI4‑Lite 接口将加速 IP 集成到 PS‑PL 系统中，在 PYNQ 上完成端到端系统设计与验证
 
 ## Project Structure
 
@@ -14,26 +16,28 @@
 
 ```text
 yolo_ukf_track/
-├── notebooks/                   # 在 PYNQ‑Z2 上运行的 Jupyter Notebook
-│   ├── yolo_ukf_soft.ipynb      # 纯软件版 YOLO + UKF 流程
-│   ├── yolo_ukf_hardware.ipynb  # 调用 FPGA UKF IP 的硬件加速版
-│   ├── design_1.bit             # 覆盖层比特流文件
-│   ├── design_1.hwh             # 硬件描述文件（PYNQ 加载时使用）
-│   ├── models/                  # YOLO 权重、配置及类别文件
-│   ├── videos/                  # 测试视频（如 personwalking.avi 等）
-│   └── result/                  # 检测/跟踪生成的中间结果和可视化视频
+├── notebooks/                    # 在 PYNQ‑Z2 上运行的 Jupyter Notebook
+│   ├── yolo_ukf_soft.ipynb       # 纯软件版 YOLO + UKF 流程
+│   ├── yolo_ukf_hardware.ipynb   # 调用 FPGA UKF IP 的硬件加速版
+│   ├── design_1.bit              # 覆盖层比特流文件
+│   ├── design_1.hwh              # 硬件描述文件（PYNQ 加载时使用）
+│   ├── models/                   # YOLO 权重、配置及类别文件
+│   ├── videos/                   # 测试视频（如 personwalking.avi 等）
+│   └── result/                   # 检测/跟踪生成的中间结果和可视化视频
 ├── src/
-│   ├── kernel/                  # HLS UKF 加速核工程
-│   │   ├── ukf_accel.cpp        # HLS 顶层内核实现（ukf_accel_step 等）
-│   │   ├── ukf_tb.cpp           # C 级测试平台，与 MATLAB 结果对比
-│   │   ├── ukf.hpp              # SR‑UKF 核心算法与线性代数辅助函数
-│   │   ├── cholesky.hpp         # Cholesky 分解/更新算子（XF Solver 改写）
-│   │   ├── description.json     # HLS 内核描述文件
-│   │   ├── hls_config.cfg       # HLS 构建配置
-│   │   └── run_hls.tcl          # 一键运行 HLS 的 TCL 脚本
-│   └── overlay/                 # Vivado 覆盖层工程
-│       └── vivado_bd.tcl        # 创建 Block Design 以及Vivado运行的脚本
-└── README.md                    # 项目说明与使用指南
+│   ├── kernel/                   # HLS UKF 加速核工程
+│   │   ├── ukf_accel.cpp         # HLS 顶层内核实现（批量执行和单步执行等模式）
+│   │   ├── ukf_tb.cpp            # C 级测试平台，与 MATLAB 结果对比
+│   │   ├── ukf.hpp               # SR‑UKF 核心算法与线性代数辅助函数
+│   │   ├── cholesky.hpp          # Cholesky 分解/更新算子（XF Solver 改写）
+│   │   ├── description.json      # HLS 内核描述文件
+│   │   ├── hls_config.cfg        # HLS 构建配置
+│   │   ├── inputs_ukf_common.txt # HLS 测试的输入文件
+│   │   ├── result_ukf_matlab.txt # MATLAB 的测试输出结果
+│   │   └── run_hls.tcl           # 一键运行 HLS 的 TCL 脚本
+│   └── overlay/                  # Vivado 覆盖层工程
+│       └── vivado_bd.tcl         # 创建 Block Design 以及 Vivado 运行的脚本
+└── README.md                     # 项目说明与使用指南
 ```
 
 ## Hardware Requirements
@@ -42,14 +46,17 @@ yolo_ukf_track/
 - 网络连接（用于访问 PYNQ Jupyter 环境）
 
 ## Software Requirements
-- PYNQ 官方镜像（推荐与 PYNQ-Z2 匹配的稳定版本）
+- PYNQ 官方镜像（推荐与 PYNQ‑Z2 匹配的稳定版本）
 - Vivado 与 Vitis HLS 2024.2
 
 ## Getting Started
 
-本节面向刚接触 PYNQ 与 HLS 的入门用户，给出从零开始的完整复现步骤。如在 Jupyter 上运行遇到“找不到模型/视频/结果目录”等问题，请先检查并修改 Notebook 中与路径相关的代码；视频的输入文件名需要根据你自己的数据进行设置。
+本节面向刚接触 PYNQ 与 HLS 的入门用户，给出从零开始的完整复现步骤。如在 Jupyter 上运行时遇到“找不到模型/视频/结果目录”等问题，请先检查并修改 Notebook 中与路径相关的代码；视频的输入文件名需要根据你自己的数据进行设置。
 
-Jupyter需要修改路径的代码位置：
+### 路径与数据准备提示
+
+Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
+
 - 纯软件版流程：`notebooks/yolo_ukf_soft.ipynb`
   - 路径与模型配置（根目录、模型目录等）：
     - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:766-773` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
@@ -61,12 +68,13 @@ Jupyter需要修改路径的代码位置：
     - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:174-181` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
   - 输入视频所在目录：
     - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:338` 与 `:805` 中的 `video_dir = SRC_DIR`
-result_ukf_matlab.txt是Matlab源码进行批量测试数据的运行结果，Matlab代码在后面的`Performance`有提供地址
+
+- `result_ukf_matlab.txt` 是 MATLAB 源码对批量测试数据的运行结果，对应的 MATLAB 参考实现链接在后文 `Performance` 章节中给出。
 
 ### 1. 在PC机上准备工程
 
 1. 克隆或下载本项目到本地开发机：
-   - 目录结构应包含 `yolo_ukf_track/notebook` 与 `yolo_ukf_track/src`。
+   - 目录结构应包含 `yolo_ukf_track/notebooks` 与 `yolo_ukf_track/src`。
 2. 确认已安装软件环境：
    - Vivado 与 Vitis HLS 2024.2
    - 任意支持 `scp` 的终端工具（用于将文件拷贝到 PYNQ 板）
@@ -102,7 +110,7 @@ result_ukf_matlab.txt是Matlab源码进行批量测试数据的运行结果，Ma
    ```text
    /home/xilinx/yolo_ukf_track/notebook
    ```
-5. yolo部分已经进行抽帧检测，开发者可自行调整抽帧间隔以运行出更高帧率的视频
+5. YOLO 部分已经进行抽帧检测，开发者可根据板卡性能和需求自行调整抽帧间隔，以在保证精度的前提下获得更高的输出帧率。
 6. 运行纯软件版 YOLO+UKF 流程（不依赖 FPGA bitstream，仅做算法对齐）：
    - 打开 `yolo_ukf_soft.ipynb`
    - 从上到下依次执行各个 Cell
@@ -183,7 +191,7 @@ result_ukf_matlab.txt是Matlab源码进行批量测试数据的运行结果，Ma
 3. 脚本执行成功后，会在 `src/overlay/vivado_bd` 目录下生成：
 
    - `design_1.bit`
-   - `design_1.hwh`注意：hwh需要解压一下，否则可能无法被识别
+   - `design_1.hwh`（注意：`design_1.hwh` 如果被打包压缩，需要先解压，否则可能无法被 PYNQ 正确识别）
    - 以及中间工程文件
 
 4. 将生成的文件拷贝到 Notebook 目录，供 PYNQ 加载使用（如需覆盖仓库中已有版本）：
