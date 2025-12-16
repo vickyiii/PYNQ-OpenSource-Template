@@ -2,13 +2,13 @@
 
 ## Overview
 
-本项目于 2025 年全国大学生嵌入式芯片与系统设计竞赛——AMD 命题式赛道获得全国一等奖，非常适合作为 PYNQ 的基础入门学习示例，代码量适中、结构清晰且便于修改。
+本项目于 **2025 年全国大学生嵌入式芯片与系统设计竞赛——AMD 命题式赛道**获得**全国一等奖**，非常适合作为 PYNQ 的基础入门学习示例，代码量适中、结构清晰且便于修改。
 
-本项目基于 Vitis HLS 和 Vivado 2024.2 在 PYNQ‑Z2 平台上实现平方根无迹卡尔曼滤波器（SR‑UKF）的硬件加速，核心特点包括：
+本项目基于 **Vitis HLS** 和 **Vivado 2024.2** 在 **PYNQ‑Z2** 平台上实现**平方根无迹卡尔曼滤波器（SR‑UKF）**的硬件加速，核心特点包括：
 
-- 将 UKF 的时间更新和量测更新流程以硬件友好的方式重构
-- 集成基于 Cholesky 分解的平方根形式协方差更新算子
-- 通过 AXI4‑Lite 接口将加速 IP 集成到 PS‑PL 系统中，在 PYNQ 上完成端到端系统设计与验证
+- 将 UKF 的时间更新和量测更新流程以**硬件友好**的方式重构
+- 集成基于 **Cholesky 分解**的平方根形式协方差更新算子
+- 通过 **AXI4‑Lite** 接口将加速 IP 集成到 PS‑PL 系统中，在 PYNQ 上完成**端到端系统设计与验证**
 
 ## Project Structure
 
@@ -41,13 +41,15 @@ yolo_ukf_track/
 ```
 
 ## Hardware Requirements
-- PYNQ-Z2 开发板（ XC7Z020 ）
+
+- **PYNQ-Z2 开发板**（XC7Z020）
 - Micro-USB 电源及 USB 线缆
 - 网络连接（用于访问 PYNQ Jupyter 环境）
 
 ## Software Requirements
-- PYNQ 官方镜像（推荐与 PYNQ‑Z2 匹配的稳定版本）
-- Vivado 与 Vitis HLS 2024.2
+
+- **PYNQ 官方镜像**（推荐与 PYNQ‑Z2 匹配的稳定版本）
+- **Vivado** 与 **Vitis HLS 2024.2**
 
 ## Getting Started
 
@@ -57,25 +59,25 @@ yolo_ukf_track/
 
 Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
-- 纯软件版流程：`notebooks/yolo_ukf_soft.ipynb`
-  - 路径与模型配置（根目录、模型目录等）：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:766-773` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:1036-1038` 中的 `SRC_DIR`、`VIDEO_DIR`、`DEBUG_ROOT`
-  - 输入视频所在目录：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:971` 与 `:1686` 中的 `video_dir = SRC_DIR`（默认从当前目录下的视频目录中批量读取）
-- 硬件加速版流程：`notebooks/yolo_ukf_hardware.ipynb`
-  - 路径与模型配置（根目录、模型目录等）：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:174-181` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
-  - 输入视频所在目录：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:338` 与 `:805` 中的 `video_dir = SRC_DIR`
+- **纯软件版流程**：`notebooks/yolo_ukf_soft.ipynb`
+  - **路径与模型配置**（根目录、模型目录等）：
+    - `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH` 位于 `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:766-773`
+    - `SRC_DIR`、`VIDEO_DIR`、`DEBUG_ROOT` 位于 `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:1036-1038`
+  - **输入视频所在目录**：
+    - `video_dir = SRC_DIR` 位于 `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:971` 与 `:1686`（默认从当前目录下的视频目录中批量读取）
+- **硬件加速版流程**：`notebooks/yolo_ukf_hardware.ipynb`
+  - **路径与模型配置**（根目录、模型目录等）：
+    - `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH` 位于 `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:174-181`
+  - **输入视频所在目录**：
+    - `video_dir = SRC_DIR` 位于 `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:338` 与 `:805`
 
-- `result_ukf_matlab.txt` 是 MATLAB 源码对批量测试数据的运行结果，对应的 MATLAB 参考实现链接在后文 `Performance` 章节中给出。
+- `result_ukf_matlab.txt` 是 MATLAB 源码对批量测试数据的运行结果，对应的 MATLAB 参考实现链接在后文 **Performance** 章节中给出。
 
-### 1. 在PC机上准备工程
+### 1. 在 PC 机上准备工程
 
-1. 克隆或下载本项目到本地开发机：
+1. **克隆或下载**本项目到本地开发机：
    - 目录结构应包含 `yolo_ukf_track/notebooks` 与 `yolo_ukf_track/src`。
-2. 确认已安装软件环境：
+2. **确认已安装软件环境**：
    - Vivado 与 Vitis HLS 2024.2
    - 任意支持 `scp` 的终端工具（用于将文件拷贝到 PYNQ 板）
 
@@ -88,8 +90,8 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
 ### 2. 部署到 PYNQ 板并运行 Notebook
 
-1. 启动 PYNQ‑Z2，确保网络连通，记下板子的 IP 地址（例如 `192.168.2.99`）。
-2. 在开发机终端中，将整个 `yolo_ukf_track` 目录拷贝到板子上（示例命令）：
+1. **启动 PYNQ‑Z2**，确保网络连通，记下板子的 IP 地址（例如 `192.168.2.99`）。
+2. **在开发机终端中**，将整个 `yolo_ukf_track` 目录拷贝到板子上（示例命令）：
 
    ```bash
    scp -r yolo_ukf_track xilinx@<PYNQ_IP>:/home/xilinx/
@@ -97,7 +99,7 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
    将 `<PYNQ_IP>` 替换为实际 IP，例如 `192.168.2.99`。
 
-3. 在浏览器中访问：
+3. **在浏览器中访问**：
 
    ```text
    http://<PYNQ_IP>:9090
@@ -105,18 +107,20 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
    使用默认用户密码均是 `xilinx` 登录 Jupyter。
 
-4. 在 Jupyter 文件浏览器中依次进入：
+4. **在 Jupyter 文件浏览器中依次进入**：
 
    ```text
    /home/xilinx/yolo_ukf_track/notebook
    ```
+
 5. YOLO 部分已经进行抽帧检测，开发者可根据板卡性能和需求自行调整抽帧间隔，以在保证精度的前提下获得更高的输出帧率。
-6. 运行纯软件版 YOLO+UKF 流程（不依赖 FPGA bitstream，仅做算法对齐）：
+
+6. **运行纯软件版 YOLO+UKF 流程**（不依赖 FPGA bitstream，仅做算法对齐）：
    - 打开 `yolo_ukf_soft.ipynb`
    - 从上到下依次执行各个 Cell
    - Notebook 会使用当前目录下的模型文件（`models/`）、示例视频（如 `personwalking.avi`），并在 `result/` 目录下生成检测与跟踪结果及输出视频
 
-7. 运行硬件加速版 UKF（需要 bitstream）：
+7. **运行硬件加速版 UKF**（需要 bitstream）：
    - 打开 `yolo_ukf_hardware.ipynb`
    - 确认 `notebook/` 目录中存在：
      - `design_1.bit`
@@ -126,7 +130,7 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
      - YOLO 检测结果由 CPU 侧生成，UKF 状态更新在 PL 侧完成
      - 输出视频保存在 `notebook/result/<视频名>/out/` 目录（例如 `result/bird/out/video_result_yolov3.mp4`）
 
-> 备注：软件版和硬件版的 UKF 算法是一一对应的，方便对比纯软件实现与硬件加速实现的轨迹和性能。
+> **备注**：软件版和硬件版的 UKF 算法是一一对应的，方便对比纯软件实现与硬件加速实现的轨迹和性能。
 
 ## Building from Source
 
@@ -134,13 +138,13 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
 ### HLS 构建步骤
 
-1. 打开终端，进入 HLS 工程目录：
+1. **打开终端**，进入 HLS 工程目录：
 
    ```bash
    cd yolo_ukf_track/src/kernel
    ```
 
-2. 使用提供的 TCL 脚本运行 HLS 流程：
+2. **使用提供的 TCL 脚本运行 HLS 流程**：
 
    ```bash
    vitis_hls run_hls.tcl
@@ -150,7 +154,7 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
    - `CSIM` 置为 `1`，会执行 C 仿真，验证功能正确性
    - `CSYNTH`、`COSIM` 默认关闭（值为 `0`）
 
-3. 如果希望继续执行综合与协同仿真，可以编辑 `run_hls.tcl` 顶部的开关，将对应变量改为 `1` 后重新运行：
+3. 如果希望继续执行综合与协同仿真，可以**编辑 `run_hls.tcl` 顶部的开关**，将对应变量改为 `1` 后重新运行：
    - `CSYNTH`：控制 C‑to‑RTL 综合
    - `COSIM`：控制 C/RTL 协同仿真
 
@@ -164,7 +168,7 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
    - HLS 报告（时序、资源占用）
    - 若启用了导出，包含生成的 IP（在后续 Vivado 覆盖层构建中使用）
 
-5. 可以运行内置测试平台，检查 HLS 结果与参考结果的一致性：
+5. 可以**运行内置测试平台**，检查 HLS 结果与参考结果的一致性：
 
    ```bash
    cd yolo_ukf_track/src/kernel
@@ -176,13 +180,13 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
 ### Vivado 构建步骤
 
-1. 打开终端，进入 overlay 目录：
+1. **打开终端**，进入 overlay 目录：
 
    ```bash
    cd yolo_ukf_track/src/overlay
    ```
 
-2. 使用提供的 TCL 脚本在批处理模式下运行 Vivado，自动创建 Block Design 并生成 bitstream：
+2. **使用提供的 TCL 脚本**在批处理模式下运行 Vivado，自动创建 Block Design 并生成 bitstream：
 
    ```bash 
    vivado -mode batch -source vivado_bd.tcl
@@ -194,7 +198,7 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
    - `design_1.hwh`（注意：`design_1.hwh` 如果被打包压缩，需要先解压，否则可能无法被 PYNQ 正确识别）
    - 以及中间工程文件
 
-4. 将生成的文件拷贝到 Notebook 目录，供 PYNQ 加载使用（如需覆盖仓库中已有版本）：
+4. **将生成的文件拷贝到 Notebook 目录**，供 PYNQ 加载使用（如需覆盖仓库中已有版本）：
 
    ```bash
    cp yolo_ukf_track/src/overlay/vivado_bd/design_1.bit  yolo_ukf_track/notebook/design_1.bit
@@ -204,24 +208,27 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 5. 重新按照 “Getting Started → 部署到 PYNQ 板并运行 Notebook” 的步骤，将更新后的 `yolo_ukf_track` 拷贝到 PYNQ 板，在 Jupyter 中重新运行 `yolo_ukf_hardware.ipynb`，即可在板端验证新生成的 bitstream。
 
 ## Performance
+
 本项目在 PYNQ‑Z2 上的性能表现主要体现在：
 
-- 使用硬件 UKF IP 后，单步滤波延时显著低于纯软件实现
+- 使用硬件 UKF IP 后，**单步滤波延时显著低于纯软件实现**
 - Notebook 中的示例会打印 UKF 调用耗时与平均耗时，可用于与软件版对比
 
 更详细的时序和资源占用信息可以在：
 
-- `yolo_ukf_track/src/kernel/ukf.prj/sol1/syn/report/` 中找到 HLS 报告
-- `yolo_ukf_track/src/overlay/vivado_bd/` 中通过 Vivado 报告查看
+- **HLS 报告**：`yolo_ukf_track/src/kernel/ukf.prj/sol1/syn/report/`
+- **Vivado 报告**：`yolo_ukf_track/src/overlay/vivado_bd/`
 
 ## References
-参考文献和资料
-**论文出处**：[Unscented Kalman Filter 经典论文](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=a665183562768e29d87ce3073fbcde564ae00768)
 
-**参考代码**：[sr-ukf MATLAB实现](https://github.com/JJHu1993/sr-ukf)
+**参考文献和资料**
+
+- **论文出处**：[Unscented Kalman Filter 经典论文](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=a665183562768e29d87ce3073fbcde564ae00768)
+- **参考代码**：[sr-ukf MATLAB实现](https://github.com/JJHu1993/sr-ukf)
 
 ## License
-本项目采用 Apache License 2.0 开源协议发布。
+
+本项目采用 **Apache License 2.0** 开源协议发布。
 
 - 您可以自由地使用、修改和分发本项目代码（包括商业用途）。
 - 在分发本项目或基于本项目的修改版本时，请保留原始版权声明和 Apache-2.0 协议文本。
@@ -231,4 +238,4 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
 
 Apache License 2.0 协议全文可参考：
 
-- 英文原文：https://www.apache.org/licenses/LICENSE-2.0
+- **英文原文**：https://www.apache.org/licenses/LICENSE-2.0
