@@ -1,170 +1,175 @@
-# 面向平方根无迹卡尔曼滤波器的硬件加速实现：集成 Cholesky 算子及其在 PYNQ‑Z2 平台的系统设计
+# Hardware Acceleration of Square Root Unscented Kalman Filter: Cholesky Operator Integration and System Design on PYNQ-Z2
 
 ## Overview
 
-本项目于 2025 年全国大学生嵌入式芯片与系统设计竞赛——AMD 命题式赛道获得全国一等奖，非常适合作为 PYNQ 的基础入门学习示例，代码量适中、结构清晰且便于修改。
+This project won the **First Prize** in the **2025 National University Embedded Chip and System Design Competition (AMD Proposition Track)**. It serves as an excellent introductory example for PYNQ learning, featuring moderate code volume, clear structure, and ease of modification.
 
-本项目基于 Vitis HLS 和 Vivado 2024.2 在 PYNQ‑Z2 平台上实现平方根无迹卡尔曼滤波器（SR‑UKF）的硬件加速，核心特点包括：
+This project implements hardware acceleration of the **Square Root Unscented Kalman Filter (SR-UKF)** on the **PYNQ-Z2** platform using **Vitis HLS** and **Vivado 2024.2**. Key features include:
 
-- 将 UKF 的时间更新和量测更新流程以硬件友好的方式重构
-- 集成基于 Cholesky 分解的平方根形式协方差更新算子
-- 通过 AXI4‑Lite 接口将加速 IP 集成到 PS‑PL 系统中，在 PYNQ 上完成端到端系统设计与验证
+- **Hardware-friendly reconstruction** of the UKF time update and measurement update processes.
+- **Integration of Cholesky decomposition-based** square root covariance update operators.
+- **End-to-end system design and verification** on PYNQ by integrating the acceleration IP into the PS-PL system via the **AXI4-Lite** interface.
 
 ## Project Structure
 
-项目目录推荐组织形式如下：
+The recommended project directory structure is as follows:
 
 ```text
 yolo_ukf_track/
-├── notebooks/                    # 在 PYNQ‑Z2 上运行的 Jupyter Notebook
-│   ├── yolo_ukf_soft.ipynb       # 纯软件版 YOLO + UKF 流程
-│   ├── yolo_ukf_hardware.ipynb   # 调用 FPGA UKF IP 的硬件加速版
-│   ├── design_1.bit              # 覆盖层比特流文件
-│   ├── design_1.hwh              # 硬件描述文件（PYNQ 加载时使用）
-│   ├── models/                   # YOLO 权重、配置及类别文件
-│   ├── videos/                   # 测试视频（如 personwalking.avi 等）
-│   └── result/                   # 检测/跟踪生成的中间结果和可视化视频
+├── notebooks/                    # Jupyter Notebooks to run on PYNQ-Z2
+│   ├── yolo_ukf_soft.ipynb       # Pure software version of YOLO + UKF workflow
+│   ├── yolo_ukf_hardware.ipynb   # Hardware accelerated version invoking FPGA UKF IP
+│   ├── design_1.bit              # Overlay bitstream file
+│   ├── design_1.hwh              # Hardware handoff file (used by PYNQ)
+│   ├── models/                   # YOLO weights, configuration, and class files
+│   ├── videos/                   # Test videos (e.g., personwalking.avi)
+│   └── result/                   # Intermediate results and visualization videos
 ├── src/
-│   ├── kernel/                   # HLS UKF 加速核工程
-│   │   ├── ukf_accel.cpp         # HLS 顶层内核实现（批量执行和单步执行等模式）
-│   │   ├── ukf_tb.cpp            # C 级测试平台，与 MATLAB 结果对比
-│   │   ├── ukf.hpp               # SR‑UKF 核心算法与线性代数辅助函数
-│   │   ├── cholesky.hpp          # Cholesky 分解/更新算子（XF Solver 改写）
-│   │   ├── description.json      # HLS 内核描述文件
-│   │   ├── hls_config.cfg        # HLS 构建配置
-│   │   ├── inputs_ukf_common.txt # HLS 测试的输入文件
-│   │   ├── result_ukf_matlab.txt # MATLAB 的测试输出结果
-│   │   └── run_hls.tcl           # 一键运行 HLS 的 TCL 脚本
-│   └── overlay/                  # Vivado 覆盖层工程
-│       └── vivado_bd.tcl         # 创建 Block Design 以及 Vivado 运行的脚本
-└── README.md                     # 项目说明与使用指南
+│   ├── kernel/                   # HLS UKF acceleration kernel project
+│   │   ├── ukf_accel.cpp         # HLS top-level kernel implementation (batch/single-step modes)
+│   │   ├── ukf_tb.cpp            # C-level testbench, comparing with MATLAB results
+│   │   ├── ukf.hpp               # SR-UKF core algorithms and linear algebra helpers
+│   │   ├── cholesky.hpp          # Cholesky decomposition/update operator (adapted from XF Solver)
+│   │   ├── description.json      # HLS kernel description file
+│   │   ├── hls_config.cfg        # HLS build configuration
+│   │   ├── inputs_ukf_common.txt # Input file for HLS testing
+│   │   ├── result_ukf_matlab.txt # MATLAB test output results
+│   │   └── run_hls.tcl           # TCL script for one-click HLS run
+│   └── overlay/                  # Vivado overlay project
+│       └── vivado_bd.tcl         # Script to create Block Design and run Vivado
+└── README.md                     # Project documentation and user guide
 ```
 
 ## Hardware Requirements
-- PYNQ-Z2 开发板（ XC7Z020 ）
-- Micro-USB 电源及 USB 线缆
-- 网络连接（用于访问 PYNQ Jupyter 环境）
+
+- **PYNQ-Z2 Development Board** (XC7Z020)
+- Micro-USB Power Supply and USB Cable
+- Network Connection (for accessing PYNQ Jupyter environment)
 
 ## Software Requirements
-- PYNQ 官方镜像（推荐与 PYNQ‑Z2 匹配的稳定版本）
-- Vivado 与 Vitis HLS 2024.2
+
+- **PYNQ Official Image** (Recommended stable version matching PYNQ-Z2)
+- **Vivado** and **Vitis HLS 2024.2**
 
 ## Getting Started
 
-本节面向刚接触 PYNQ 与 HLS 的入门用户，给出从零开始的完整复现步骤。如在 Jupyter 上运行时遇到“找不到模型/视频/结果目录”等问题，请先检查并修改 Notebook 中与路径相关的代码；视频的输入文件名需要根据你自己的数据进行设置。
+This section provides a complete reproduction guide from scratch for beginners new to PYNQ and HLS. If you encounter issues like "Model/Video/Result directory not found" when running on Jupyter, please check and modify the path-related code in the Notebook; the input video filename needs to be set according to your own data.
 
-### 路径与数据准备提示
+### Tips for Path and Data Preparation
 
-Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
+Typical locations in Jupyter Notebooks that require path modification based on the local environment are as follows:
 
-- 纯软件版流程：`notebooks/yolo_ukf_soft.ipynb`
-  - 路径与模型配置（根目录、模型目录等）：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:766-773` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:1036-1038` 中的 `SRC_DIR`、`VIDEO_DIR`、`DEBUG_ROOT`
-  - 输入视频所在目录：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:971` 与 `:1686` 中的 `video_dir = SRC_DIR`（默认从当前目录下的视频目录中批量读取）
-- 硬件加速版流程：`notebooks/yolo_ukf_hardware.ipynb`
-  - 路径与模型配置（根目录、模型目录等）：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:174-181` 中的 `SRC_DIR`、`MODELS_DIR`、`CFG_PATH`、`WEIGHTS_PATH`、`NAMES_PATH`、`DATA_PATH`
-  - 输入视频所在目录：
-    - `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:338` 与 `:805` 中的 `video_dir = SRC_DIR`
+- **Pure Software Workflow**: `notebooks/yolo_ukf_soft.ipynb`
+  - **Path and Model Configuration** (Root directory, model directory, etc.):
+    - `SRC_DIR`, `MODELS_DIR`, `CFG_PATH`, `WEIGHTS_PATH`, `NAMES_PATH`, `DATA_PATH` in `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:766-773`
+    - `SRC_DIR`, `VIDEO_DIR`, `DEBUG_ROOT` in `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:1036-1038`
+  - **Input Video Directory**:
+    - `video_dir = SRC_DIR` in `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_soft.ipynb:971` and `:1686` (Defaults to batch reading from the video directory in the current directory)
+- **Hardware Acceleration Workflow**: `notebooks/yolo_ukf_hardware.ipynb`
+  - **Path and Model Configuration** (Root directory, model directory, etc.):
+    - `SRC_DIR`, `MODELS_DIR`, `CFG_PATH`, `WEIGHTS_PATH`, `NAMES_PATH`, `DATA_PATH` in `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:174-181`
+  - **Input Video Directory**:
+    - `video_dir = SRC_DIR` in `/home/whp/Desktop/UKF/yolo_ukf_track/notebooks/yolo_ukf_hardware.ipynb:338` and `:805`
 
-- `result_ukf_matlab.txt` 是 MATLAB 源码对批量测试数据的运行结果，对应的 MATLAB 参考实现链接在后文 `Performance` 章节中给出。
+- `result_ukf_matlab.txt` contains the results of running batch test data with MATLAB source code. The link to the corresponding MATLAB reference implementation is provided in the **Performance** section later.
 
-### 1. 在PC机上准备工程
+### 1. Prepare the Project on PC
 
-1. 克隆或下载本项目到本地开发机：
-   - 目录结构应包含 `yolo_ukf_track/notebooks` 与 `yolo_ukf_track/src`。
-2. 确认已安装软件环境：
-   - Vivado 与 Vitis HLS 2024.2
-   - 任意支持 `scp` 的终端工具（用于将文件拷贝到 PYNQ 板）
+1. **Clone or Download** this project to your local development machine:
+   - The directory structure should include `yolo_ukf_track/notebooks` and `yolo_ukf_track/src`.
+2. **Verify Installed Software Environment**:
+   - Vivado and Vitis HLS 2024.2
+   - Any terminal tool supporting `scp` (for copying files to the PYNQ board)
 
-如果只想快速在 PYNQ 上体验硬件加速，而不修改硬件实现，可以直接使用仓库中已经生成好的：
+If you only want to quickly experience hardware acceleration on PYNQ without modifying the hardware implementation, you can directly use the pre-generated files in the repository:
 
 - `notebook/design_1.bit`
 - `notebook/design_1.hwh`
 
-跳过“Building from Source”章节，直接看下面的“2. 部署到 PYNQ 板”。
+Skip the "Building from Source" section and go directly to "2. Deploy to PYNQ Board" below.
 
-### 2. 部署到 PYNQ 板并运行 Notebook
+### 2. Deploy to PYNQ Board and Run Notebook
 
-1. 启动 PYNQ‑Z2，确保网络连通，记下板子的 IP 地址（例如 `192.168.2.99`）。
-2. 在开发机终端中，将整个 `yolo_ukf_track` 目录拷贝到板子上（示例命令）：
+1. **Start PYNQ-Z2**, ensure network connectivity, and note the board's IP address (e.g., `192.168.2.99`).
+2. **Copy the entire `yolo_ukf_track` directory** to the board using the terminal on your development machine (example command):
 
    ```bash
    scp -r yolo_ukf_track xilinx@<PYNQ_IP>:/home/xilinx/
    ```
 
-   将 `<PYNQ_IP>` 替换为实际 IP，例如 `192.168.2.99`。
+   Replace `<PYNQ_IP>` with the actual IP, e.g., `192.168.2.99`.
 
-3. 在浏览器中访问：
+3. **Access via Browser**:
 
    ```text
    http://<PYNQ_IP>:9090
    ```
 
-   使用默认用户密码均是 `xilinx` 登录 Jupyter。
+   Login to Jupyter using the default username and password, both are `xilinx`.
 
-4. 在 Jupyter 文件浏览器中依次进入：
+4. **Navigate in Jupyter File Browser** to:
 
    ```text
    /home/xilinx/yolo_ukf_track/notebook
    ```
-5. YOLO 部分已经进行抽帧检测，开发者可根据板卡性能和需求自行调整抽帧间隔，以在保证精度的前提下获得更高的输出帧率。
-6. 运行纯软件版 YOLO+UKF 流程（不依赖 FPGA bitstream，仅做算法对齐）：
-   - 打开 `yolo_ukf_soft.ipynb`
-   - 从上到下依次执行各个 Cell
-   - Notebook 会使用当前目录下的模型文件（`models/`）、示例视频（如 `personwalking.avi`），并在 `result/` 目录下生成检测与跟踪结果及输出视频
 
-7. 运行硬件加速版 UKF（需要 bitstream）：
-   - 打开 `yolo_ukf_hardware.ipynb`
-   - 确认 `notebook/` 目录中存在：
+5. The YOLO part has already implemented frame skipping detection. Developers can adjust the frame skipping interval according to board performance and requirements to obtain a higher output frame rate while ensuring accuracy.
+
+6. **Run Pure Software YOLO+UKF Workflow** (Does not depend on FPGA bitstream, only for algorithm alignment):
+   - Open `yolo_ukf_soft.ipynb`
+   - Execute each Cell sequentially from top to bottom
+   - The Notebook will use model files in the current directory (`models/`), sample videos (e.g., `personwalking.avi`), and generate detection/tracking results and output videos in the `result/` directory
+
+7. **Run Hardware Accelerated UKF** (Requires bitstream):
+   - Open `yolo_ukf_hardware.ipynb`
+   - Confirm the existence of:
      - `design_1.bit`
      - `design_1.hwh`
-   - 依次运行 Notebook 单元：
-     - Notebook 会在 PYNQ 板上加载 `design_1.bit`，通过 PYNQ 驱动 UKF 硬件 IP
-     - YOLO 检测结果由 CPU 侧生成，UKF 状态更新在 PL 侧完成
-     - 输出视频保存在 `notebook/result/<视频名>/out/` 目录（例如 `result/bird/out/video_result_yolov3.mp4`）
+     in the `notebook/` directory.
+   - Execute Notebook cells sequentially:
+     - The Notebook will load `design_1.bit` on the PYNQ board and drive the UKF hardware IP via PYNQ.
+     - YOLO detection results are generated on the CPU side, while UKF state updates are completed on the PL side.
+     - Output videos are saved in the `notebook/result/<video_name>/out/` directory (e.g., `result/bird/out/video_result_yolov3.mp4`).
 
-> 备注：软件版和硬件版的 UKF 算法是一一对应的，方便对比纯软件实现与硬件加速实现的轨迹和性能。
+> **Note**: The software and hardware versions of the UKF algorithm correspond one-to-one, facilitating comparison of trajectories and performance between pure software implementation and hardware acceleration implementation.
 
 ## Building from Source
 
-本节说明如何从源码重新构建 HLS 内核与 Vivado 覆盖层。对初学者而言，可以完全按照以下命令逐步执行。
+This section explains how to rebuild the HLS kernel and Vivado overlay from source code. Beginners can follow the commands below step by step.
 
-### HLS 构建步骤
+### HLS Build Steps
 
-1. 打开终端，进入 HLS 工程目录：
+1. **Open Terminal** and navigate to the HLS project directory:
 
    ```bash
    cd yolo_ukf_track/src/kernel
    ```
 
-2. 使用提供的 TCL 脚本运行 HLS 流程：
+2. **Run HLS Flow** using the provided TCL script:
 
    ```bash
    vitis_hls run_hls.tcl
    ```
 
-   默认配置中：
-   - `CSIM` 置为 `1`，会执行 C 仿真，验证功能正确性
-   - `CSYNTH`、`COSIM` 默认关闭（值为 `0`）
+   In the default configuration:
+   - `CSIM` is set to `1`, which executes C simulation to verify functional correctness.
+   - `CSYNTH` and `COSIM` are disabled by default (values are `0`).
 
-3. 如果希望继续执行综合与协同仿真，可以编辑 `run_hls.tcl` 顶部的开关，将对应变量改为 `1` 后重新运行：
-   - `CSYNTH`：控制 C‑to‑RTL 综合
-   - `COSIM`：控制 C/RTL 协同仿真
+3. If you wish to proceed with synthesis and co-simulation, **edit the switches** at the top of `run_hls.tcl`, change the corresponding variables to `1`, and rerun:
+   - `CSYNTH`: Controls C-to-RTL synthesis
+   - `COSIM`: Controls C/RTL co-simulation
 
-4. HLS 完成后，会在当前目录下生成工程：
+4. After HLS completion, a project will be generated in the current directory:
 
    ```text
    ukf.prj/sol1/...
    ```
 
-   其中包含：
-   - HLS 报告（时序、资源占用）
-   - 若启用了导出，包含生成的 IP（在后续 Vivado 覆盖层构建中使用）
+   This includes:
+   - HLS reports (timing, resource utilization)
+   - Generated IP (if export is enabled), used in subsequent Vivado overlay construction
 
-5. 可以运行内置测试平台，检查 HLS 结果与参考结果的一致性：
+5. You can **run the built-in testbench** to check the consistency between HLS results and reference results:
 
    ```bash
    cd yolo_ukf_track/src/kernel
@@ -172,63 +177,65 @@ Jupyter Notebook 中需要根据本地环境修改路径的典型位置如下：
    ./ukf_tb_host
    ```
 
-   程序会读取 `inputs_ukf_common.txt`，生成 `result_ukf_hls.txt`，并与 `result_ukf_matlab.txt` 对比，输出误差指标与 PASS/FAIL 信息。
+   The program reads `inputs_ukf_common.txt`, generates `result_ukf_hls.txt`, compares it with `result_ukf_matlab.txt`, and outputs error metrics and PASS/FAIL information.
 
-### Vivado 构建步骤
+### Vivado Build Steps
 
-1. 打开终端，进入 overlay 目录：
+1. **Open Terminal** and navigate to the overlay directory:
 
    ```bash
    cd yolo_ukf_track/src/overlay
    ```
 
-2. 使用提供的 TCL 脚本在批处理模式下运行 Vivado，自动创建 Block Design 并生成 bitstream：
+2. **Run Vivado** in batch mode using the provided TCL script to automatically create the Block Design and generate the bitstream:
 
    ```bash 
    vivado -mode batch -source vivado_bd.tcl
    ```
 
-3. 脚本执行成功后，会在 `src/overlay/vivado_bd` 目录下生成：
+3. Upon successful script execution, the following files will be generated in the `src/overlay/vivado_bd` directory:
 
    - `design_1.bit`
-   - `design_1.hwh`（注意：`design_1.hwh` 如果被打包压缩，需要先解压，否则可能无法被 PYNQ 正确识别）
-   - 以及中间工程文件
+   - `design_1.hwh` (Note: If `design_1.hwh` is compressed, it must be decompressed first, otherwise PYNQ may not recognize it correctly)
+   - Intermediate project files
 
-4. 将生成的文件拷贝到 Notebook 目录，供 PYNQ 加载使用（如需覆盖仓库中已有版本）：
+4. **Copy the generated files** to the Notebook directory for PYNQ to load (if you need to overwrite the existing version in the repository):
 
    ```bash
    cp yolo_ukf_track/src/overlay/vivado_bd/design_1.bit  yolo_ukf_track/notebook/design_1.bit
    cp yolo_ukf_track/src/overlay/vivado_bd/design_1.hwh yolo_ukf_track/notebook/design_1.hwh
    ```
 
-5. 重新按照 “Getting Started → 部署到 PYNQ 板并运行 Notebook” 的步骤，将更新后的 `yolo_ukf_track` 拷贝到 PYNQ 板，在 Jupyter 中重新运行 `yolo_ukf_hardware.ipynb`，即可在板端验证新生成的 bitstream。
+5. Follow the steps in "Getting Started → Deploy to PYNQ Board and Run Notebook" again to copy the updated `yolo_ukf_track` to the PYNQ board. Re-run `yolo_ukf_hardware.ipynb` in Jupyter to verify the newly generated bitstream on the board.
 
 ## Performance
-本项目在 PYNQ‑Z2 上的性能表现主要体现在：
 
-- 使用硬件 UKF IP 后，单步滤波延时显著低于纯软件实现
-- Notebook 中的示例会打印 UKF 调用耗时与平均耗时，可用于与软件版对比
+The performance of this project on PYNQ-Z2 is highlighted by:
 
-更详细的时序和资源占用信息可以在：
+- **Significantly lower latency** for single-step filtering using the hardware UKF IP compared to pure software implementation.
+- The Notebook example prints UKF execution time and average time, facilitating comparison with the software version.
 
-- `yolo_ukf_track/src/kernel/ukf.prj/sol1/syn/report/` 中找到 HLS 报告
-- `yolo_ukf_track/src/overlay/vivado_bd/` 中通过 Vivado 报告查看
+More detailed timing and resource utilization information can be found in:
+
+- **HLS Reports**: `yolo_ukf_track/src/kernel/ukf.prj/sol1/syn/report/`
+- **Vivado Reports**: `yolo_ukf_track/src/overlay/vivado_bd/`
 
 ## References
-参考文献和资料
-**论文出处**：[Unscented Kalman Filter 经典论文](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=a665183562768e29d87ce3073fbcde564ae00768)
 
-**参考代码**：[sr-ukf MATLAB实现](https://github.com/JJHu1993/sr-ukf)
+**Paper**: [The Classical Unscented Kalman Filter Paper](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=a665183562768e29d87ce3073fbcde564ae00768)
+
+**Reference Code**: [sr-ukf MATLAB Implementation](https://github.com/JJHu1993/sr-ukf)
 
 ## License
-本项目采用 Apache License 2.0 开源协议发布。
 
-- 您可以自由地使用、修改和分发本项目代码（包括商业用途）。
-- 在分发本项目或基于本项目的修改版本时，请保留原始版权声明和 Apache-2.0 协议文本。
-- 本项目“按现状”提供，不对适用于特定目的、无缺陷等做任何保证，作者不对使用本项目造成的任何损失负责。
+This project is licensed under the **Apache License 2.0**.
 
-部分源码（例如 `src/kernel/cholesky.hpp` 及相关 XF Solver 代码）来自 Xilinx/AMD 官方示例，已在文件头部标明 Apache-2.0 版权与协议条款，请在再分发时一并保留这些说明。
+- You are free to use, modify, and distribute this project's code (including for commercial purposes).
+- When distributing this project or modified versions based on it, please retain the original copyright notice and the Apache-2.0 license text.
+- This project is provided "AS IS", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors be liable for any claim, damages or other liability.
 
-Apache License 2.0 协议全文可参考：
+Some source code (e.g., `src/kernel/cholesky.hpp` and related XF Solver code) is derived from official Xilinx/AMD examples and is marked with Apache-2.0 copyright and license terms in the file headers. Please retain these notices when redistributing.
 
-- 英文原文：https://www.apache.org/licenses/LICENSE-2.0
+The full text of the Apache License 2.0 can be found at:
+
+- https://www.apache.org/licenses/LICENSE-2.0
