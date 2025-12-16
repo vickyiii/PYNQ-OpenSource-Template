@@ -1,0 +1,72 @@
+[
+  {
+    "frame_id": 0,
+    "frame_file": "frames/frame_000000.jpg",
+    "det_file": "detections/frame_000000.json"
+  },
+  {
+    "frame_id": 1,
+    "frame_file": "frames/frame_000001.jpg",
+    "det_file": "detections/frame_000001.json"
+  },
+  {
+    "frame_id": 2,
+    "frame_file": "frames/frame_000002.jpg",
+    "det_file": "detections/frame_000002.json"
+  },
+  {
+    "frame_id": 3,
+    "frame_file": "frames/frame_000003.jpg",
+    "det_file": "detections/frame_000003.json"
+  },
+  {
+    "frame_id": 4,
+    "frame_file": "frames/frame_000004.jpg",
+    "det_file": "detections/frame_000004.json"
+  },
+  {
+    "frame_id": 5,
+    "frame_file": "frames/frame_000005.jpg",
+    "det_file": "detections/frame_000005.json"
+  },
+  {
+    "frame_id": 6,
+    "frame_file": "frames/frame_000006.jpg",
+    "det_file": "detections/frame_000006.json"
+  },
+  {
+    "frame_id": 7,
+    "frame_file": "frames/frame_000007.jpg",
+    "det_file": "detections/frame_000007.json"
+  },
+  {
+    "frame_id": 8,
+    "frame_file": "frames/frame_000008.jpg",
+    "det_file": "detections/frame_000008.json"
+  },
+  {
+    "frame_id": 9,
+    "frame_file": "frames/frame_000009.jpg",
+    "det_file": "detections/frame_000009.json"
+  },
+  {
+    "frame_id": 10,
+    "frame_file": "frames/frame_000010.jpg",
+    "det_file": "detections/frame_000010.json"
+  },
+  {
+    "frame_id": 11,
+    "frame_file": "frames/frame_000011.jpg",
+    "det_file": "detections/frame_000011.json"
+  },
+  {
+    "frame_id": 12,
+    "frame_file": "frames/frame_000012.jpg",
+    "det_file": "detections/frame_000012.json"
+  },
+  {
+    "frame_id": 13,
+    "frame_file": "frames/frame_000013.jpg",
+    "det_file": "detections/frame_000013.json"
+  }
+]

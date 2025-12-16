@@ -1,0 +1,19 @@
+[
+  {
+    "frame_id": 1,
+    "filename": "/home/xilinx/jupyter_notebooks/src/result/personwalking/frames/frame_000045.jpg",
+    "objects": [
+      {
+        "class_id": 0,
+        "name": "person",
+        "relative_coordinates": {
+          "center_x": 0.801214,
+          "center_y": 0.503165,
+          "width": 0.225771,
+          "height": 0.55182
+        },
+        "confidence": 0.980041
+      }
+    ]
+  }
+]

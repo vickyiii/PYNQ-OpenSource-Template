@@ -1,0 +1,67 @@
+{
+  "name": "ukf_accel",
+  "description": "Square-root Unscented Kalman Filter (SR-UKF) accelerator kernel for PYNQ-Z2.",
+  "flow": "hls",
+  "platform_allowlist": [],
+  "platform_blocklist": [],
+  "part_allowlist": [
+    "xc7z020-clg484-1"
+  ],
+  "part_blocklist": [],
+  "project": "ukf",
+  "solution": "sol1",
+  "clock": "100MHz",
+  "topfunction": "ukf_accel_step",
+  "top": {
+    "source": [
+      "ukf_accel.cpp"
+    ],
+    "cflags": "-I. -std=c++14"
+  },
+  "testbench": {
+    "source": [
+      "ukf_tb.cpp"
+    ],
+    "cflags": "-I. -std=c++14",
+    "ldflags": "",
+    "argv": {
+      "hls_csim": "",
+      "hls_cosim": ""
+    },
+    "stdmath": false
+  },
+  "testinfo": {
+    "disable": false,
+    "jobs": [
+      {
+        "index": 0,
+        "dependency": [],
+        "env": "",
+        "cmd": "",
+        "max_memory_MB": {
+          "vivado_syn": 32768,
+          "hls_csim": 10240,
+          "hls_cosim": 16384,
+          "vivado_impl": 16384,
+          "hls_csynth": 10240
+        },
+        "max_time_min": {
+          "vivado_syn": 60,
+          "hls_csim": 60,
+          "hls_cosim": 60,
+          "vivado_impl": 60,
+          "hls_csynth": 60
+        }
+      }
+    ],
+    "targets": [
+      "hls_csim",
+      "hls_csynth",
+      "hls_cosim",
+      "vivado_syn",
+      "vivado_impl"
+    ],
+    "category": "canary"
+  },
+  "gui": true
+}

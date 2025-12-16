@@ -1,0 +1,12 @@
+{
+  "video_path": "/home/xilinx/jupyter_notebooks/src/videos/vtest.mp4",
+  "sample_every": 10,
+  "resize_to": [
+    416,
+    416
+  ],
+  "fps_in": 30.0,
+  "fps_out": 3.0,
+  "frames_total": 22,
+  "frames_detected": 22
+}

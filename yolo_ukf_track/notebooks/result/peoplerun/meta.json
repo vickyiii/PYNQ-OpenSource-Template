@@ -1,0 +1,12 @@
+{
+  "video_path": "/home/xilinx/jupyter_notebooks/src/videos2/peoplerun.mp4",
+  "sample_every": 3,
+  "resize_to": [
+    416,
+    416
+  ],
+  "fps_in": 30.0,
+  "fps_out": 10.0,
+  "frames_total": 40,
+  "frames_detected": 40
+}
